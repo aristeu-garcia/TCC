@@ -2,7 +2,7 @@
 services:
   backend: 
     build: 
-      context: .
+      context: ./back-end
       dockerfile: Dockerfile
 
     # dockerfile: Dockerfile
@@ -11,10 +11,12 @@ services:
     env_file:
       - ./back-end/.env
 
-  # frontend:
-  #   build: ./frontend
-  #   ports:
-  #     - 3001:3001
+  frontend:
+    build: 
+      context: ./front-end
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3001
 
 
     

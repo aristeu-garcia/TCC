@@ -17,11 +17,17 @@ let mongoURI = "";
 const loadEnv = () => {
   dotenv.config();
 
-  appId = process.env.APP_ID;
-  appSecret = process.env.APP_SECRET;
-  redirectUri = process.env.REDIRECT_URI;
-  accessTokenUrl = process.env.ACCESS_TOKEN_URL;
+  appId = process.env.ML_APP_ID;
+  appSecret = process.env.ML_APP_SECRET;
+  redirectUri = process.env.ML_REDIRECT_URL;
+  accessTokenUrl = process.env.ML_ACCESS_TOKEN_URL;
   mongoURI = process.env.MONGO_URI;
+  const required = { appId, appSecret, redirectUri, accessTokenUrl, mongoURI };
+  for (const [key, value] of Object.entries(required)) {
+    if (!value) {
+      throw new Error(`❌ Variável de ambiente ${key} não definida`);
+    }
+  }
 };
 import { MongoClient } from "mongodb";
 import cors from "cors";
@@ -304,6 +310,7 @@ const askCodeInTerminal = () => {
 const startAuthFlow = async () => {
   const authUrl = `https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=${appId}&redirect_uri=${redirectUri}`;
   console.log("Abrindo navegador para autenticação...");
+  console.log("Caso o navedor não abra, copie e cole esse link:", authUrl);
   await open(authUrl);
 
   const code = await askCodeInTerminal();
@@ -396,7 +403,7 @@ const init = async () => {
   await connectMongoDB();
 };
 
-app.listen(port, async () => {
+app.listen(port,  () => {
   init();
   console.log(`Servidor rodando na porta ${port}`);
 });
