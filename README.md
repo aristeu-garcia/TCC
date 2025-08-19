@@ -1,4 +1,4 @@
----
+
 
 # README
 
@@ -9,7 +9,6 @@ Este projeto de TCC é uma aplicação full-stack que interage com a API do Merc
 * **Back-end**: Node.js + Express, com conexão ao MongoDB.
 * **Front-end**: React (Next.js), permitindo login via OAuth do Mercado Livre, atualização e consulta de categorias.
 
----
 
 ## Pré-requisitos
 
