@@ -14,6 +14,8 @@ let appSecret = "";
 let redirectUri = "";
 let accessTokenUrl = "";
 let mongoURI = "";
+
+
 const loadEnv = () => {
   dotenv.config();
 
@@ -40,11 +42,11 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
+
+app.use(express.json());
 const port = 3001;
 let client = null;
 
-//https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=4342041251585295&redirect_uri=https://httpbin.org/get
-// ⚠️ Não use tokens hardcoded se puder evitar. Pegue dinamicamente.
 
 const database = "TCC2";
 
@@ -66,6 +68,23 @@ app.put("/refresh-categories", async (req, res) => {
   console.log("[PUT] Refreshing categories...");
   await refreshCategories();
   res.sendStatus(200);
+});
+
+app.post("/auth/callback", async (req, res) => {
+  try {
+    console.log("[POST] Autenticando...", req.body);
+    const { code } = req.body;
+
+    if (!code) {
+      return res.status(400).json({ error: "O campo 'code' é obrigatório" });
+    }
+
+    await getAccessToken(code);
+    return res.json({ message: "Token salvo com sucesso!", accessToken });
+  } catch (error) {
+    console.error("Erro ao autenticar:", error.response?.data || error.message);
+    return res.status(500).json({ error: "Falha ao autenticar" });
+  }
 });
 
 const findCategoryByMlCategoryId = async (mlCategoryId) => {
@@ -310,16 +329,11 @@ const askCodeInTerminal = () => {
 const startAuthFlow = async () => {
   const authUrl = `https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=${appId}&redirect_uri=${redirectUri}`;
   console.log("Abrindo navegador para autenticação...");
-  console.log("Caso o navedor não abra, copie e cole esse link:", authUrl);
+  console.log("Caso o navedor não abra, copie e cole esse: ", authUrl);
+  console.log(
+    'Envie o codigo retornado no navegador para a rota "/auth/callback"'
+  );
   await open(authUrl);
-
-  const code = await askCodeInTerminal();
-  if (!code) {
-    console.error("Código de autorização não informado!");
-    process.exit(1);
-  }
-
-  await getAccessToken(code);
 };
 const getUserInfo = async (accessToken) => {
   const url = "https://api.mercadolibre.com/users/me";
@@ -403,7 +417,7 @@ const init = async () => {
   await connectMongoDB();
 };
 
-app.listen(port,  () => {
+app.listen(port, () => {
   init();
   console.log(`Servidor rodando na porta ${port}`);
 });

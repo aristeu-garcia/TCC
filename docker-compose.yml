@@ -1,13 +1,10 @@
-
 services:
   backend: 
     build: 
       context: ./back-end
       dockerfile: Dockerfile
-
-    # dockerfile: Dockerfile
     ports:
-      - 3000:3000
+      - "3001:3001"
     env_file:
       - ./back-end/.env
 
@@ -16,7 +13,4 @@ services:
       context: ./front-end
       dockerfile: Dockerfile
     ports:
-      - 3000:3001
-
-
-    
+      - "3000:3000"
