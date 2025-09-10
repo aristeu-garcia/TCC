@@ -1,7 +1,155 @@
-"use client"; 
+"use client";
 import { useState } from "react";
 import axios from "axios";
+import styled from "@emotion/styled";
 
+// Estilização com Emotion
+const PageContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f9fafb;
+  padding: 1rem;
+`;
+
+const ContentWrapper = styled.div`
+  width: 100%;
+  max-width: 28rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`;
+
+const Card = styled.div`
+  background-color: #fff;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const Title = styled.h1`
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+  color: #1f2937;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #d1d5db;
+  color: #1f2937;
+  &::placeholder {
+    color: #9ca3af;
+  }
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #d1d5db;
+    outline-offset: 1px;
+  }
+`;
+
+const Button = styled.button`
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    filter: brightness(0.9);
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const LoginButton = styled(Button)`
+  background-color: #1f2937;
+  &:hover {
+    background-color: #374151;
+  }
+`;
+
+const UpdateButton = styled(Button)`
+  background-color: #10b981;
+  &:hover {
+    background-color: #059669;
+  }
+`;
+
+const FetchButton = styled(Button)`
+  background-color: #8b5cf6;
+  &:hover {
+    background-color: #7c3aed;
+  }
+`;
+
+const Message = styled.p`
+  text-align: center;
+  font-size: 0.875rem;
+  color: #374151;
+`;
+
+const ErrorMessage = styled.p`
+  color: #ef4444;
+  font-size: 0.875rem;
+`;
+
+const SuccessMessage = styled.p`
+  color: #16a34a;
+  font-size: 0.875rem;
+`;
+
+// Estilização para a Tabela
+const CategoryTableContainer = styled.div`
+  max-height: 10rem;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+`;
+
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+`;
+
+const TableHeader = styled.thead`
+  background-color: #f3f4f6;
+`;
+
+const TableRow = styled.tr`
+  &:nth-of-type(odd) {
+    background-color: #f9fafb;
+  }
+  &:hover {
+    background-color: #e5e7eb;
+  }
+`;
+
+const TableCell = styled.td`
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+`;
+
+const TableHeaderCell = styled.th`
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #4b5563;
+`;
+
+// Componente principal
 export default function HomePage() {
   const [updateData, setUpdateData] = useState(null);
   const [fetchData, setFetchData] = useState(null);
@@ -10,17 +158,16 @@ export default function HomePage() {
   const [errorUpdate, setErrorUpdate] = useState(null);
   const [errorFetch, setErrorFetch] = useState(null);
 
-  const [authCode, setAuthCode] = useState(""); 
+  const [authCode, setAuthCode] = useState("");
   const [loadingLogin, setLoadingLogin] = useState(false);
   const [loginMessage, setLoginMessage] = useState(null);
 
-  // Atualizar categorias (rota PUT /refresh-categories)
   const handleUpdate = async () => {
     setLoadingUpdate(true);
     setErrorUpdate(null);
     setUpdateData(null);
     try {
-      const response = await axios.put("http://localhost:3001/refresh-categories", {}, {
+      await axios.put("http://localhost:3001/refresh-categories", {}, {
         headers: { "Content-Type": "application/json" },
       });
       setUpdateData("Categorias atualizadas com sucesso!");
@@ -32,7 +179,6 @@ export default function HomePage() {
     }
   };
 
-  // Buscar categorias (rota GET /categories)
   const handleFetch = async () => {
     setLoadingFetch(true);
     setErrorFetch(null);
@@ -48,7 +194,6 @@ export default function HomePage() {
     }
   };
 
-  // Login com o code
   const handleLogin = async () => {
     if (!authCode) {
       setLoginMessage("Informe o código de autorização.");
@@ -70,71 +215,69 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
-      <div className="w-full max-w-md bg-white rounded shadow p-6 space-y-6">
-        <h1 className="text-center text-xl">Interação com API</h1>
-
-        {/* Bloco de login */}
-        <div className="space-y-3">
-          <h3 className="text-lg">
-            No terminal do back-end foi gerado um link. Clique nele, copie o código do navegador e cole abaixo:
-          </h3>
-          <input
+    <PageContainer>
+      <ContentWrapper>
+        {/* Card Login */}
+        <Card>
+          <Title>Login</Title>
+          <Input
             type="text"
-            placeholder="Cole o code aqui..."
+            placeholder="Email"
             value={authCode}
             onChange={(e) => setAuthCode(e.target.value)}
-            className="w-full border rounded p-2"
           />
-          <button
+          <LoginButton
             onClick={handleLogin}
             disabled={loadingLogin}
-            className="btn w-full"
           >
-            {loadingLogin ? "Autenticando..." : "Logar"}
-          </button>
-          {loginMessage && <p className="text-sm mt-2">{loginMessage}</p>}
-        </div>
+            {loadingLogin ? "Logando..." : "Logar"}
+          </LoginButton>
+          {loginMessage && <Message>{loginMessage}</Message>}
+        </Card>
 
-        {/* Botão atualizar */}
-        <div>
-          <button
+        {/* Card Categorias */}
+        <Card>
+          <UpdateButton
             onClick={handleUpdate}
             disabled={loadingUpdate}
-            className="btn w-full"
           >
             {loadingUpdate ? "Atualizando..." : "Atualizar categorias"}
-          </button>
-          {errorUpdate && <p className="text-red-500 mt-2">{errorUpdate}</p>}
-          {updateData && (
-            <p className="mt-2 p-2 bg-green-100 rounded">{updateData}</p>
-          )}
-        </div>
+          </UpdateButton>
+          {errorUpdate && <ErrorMessage>{errorUpdate}</ErrorMessage>}
+          {updateData && <SuccessMessage>{updateData}</SuccessMessage>}
 
-        {/* Botão buscar */}
-        <div>
-          <button
+          <FetchButton
             onClick={handleFetch}
             disabled={loadingFetch}
-            className="btn w-full"
           >
             {loadingFetch ? "Buscando..." : "Buscar categorias"}
-          </button>
-          {errorFetch && <p className="text-red-500 mt-2">{errorFetch}</p>}
+          </FetchButton>
+          {errorFetch && <ErrorMessage>{errorFetch}</ErrorMessage>}
           {fetchData &&
             (Array.isArray(fetchData) && fetchData.length > 0 ? (
-              <ul className="list-disc pl-5 mt-2 max-h-40 overflow-auto">
-                {fetchData.map((item) => (
-                  <li key={item.id}>
-                    {item.name} (ID: {item.id})
-                  </li>
-                ))}
-              </ul>
+              <CategoryTableContainer>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHeaderCell>ID</TableHeaderCell>
+                      <TableHeaderCell>Nome</TableHeaderCell>
+                    </TableRow>
+                  </TableHeader>
+                  <tbody>
+                    {fetchData.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>{item.id}</TableCell>
+                        <TableCell>{item.name}</TableCell>
+                      </TableRow>
+                    ))}
+                  </tbody>
+                </Table>
+              </CategoryTableContainer>
             ) : (
-              <p className="mt-2">Nenhuma categoria encontrada.</p>
+              <Message>Nenhuma categoria encontrada.</Message>
             ))}
-        </div>
-      </div>
-    </div>
+        </Card>
+      </ContentWrapper>
+    </PageContainer>
   );
 }
